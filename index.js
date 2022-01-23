@@ -1,6 +1,6 @@
 const express = require("express");
 const BlockChain = require("./blockchain")
-const PubSub = require("./pubsub")
+const PubSub = require("./app/pubsub")
 const axios = require("axios");
 const app = express();
 
