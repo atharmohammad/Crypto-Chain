@@ -18,7 +18,6 @@ class BlockChain{
         if(JSON.stringify(chain[0]) != JSON.stringify(Block.genesis())){
             return false;
         }
-
         for(let i = 1; i<chain.length; i++){
             if (
                 chain[i].lastHash != chain[i - 1].hash ||
@@ -26,11 +25,16 @@ class BlockChain{
                 cryptoHash(
                     chain[i].timestamp,
                     chain[i].lastHash,
-                    chain[i].data
+                    chain[i].data,
+                    chain[i].nonce,
+                    chain[i].difficulty
                 )
             ) {
               return false;
             }
+        }
+        if(Math.abs(chain[chain.length - 1].difficulty - chain[chain.length - 2].difficulty) > 1){
+            return false;
         }
         return true;
     }
