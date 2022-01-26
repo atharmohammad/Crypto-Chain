@@ -74,5 +74,48 @@ describe("Transaction ",()=>{
             })
         })
     })
-    
+    describe("update()",()=>{
+        let originalSenderOutput,originalSignature,nextRecipient,nextAmount;
+        beforeEach(()=>{
+            originalSignature = transaction.input.signature;
+            originalSenderOutput = transaction.outputMap[senderWallet.publicKey];
+            nextRecipient = "next-recipient";
+            nextAmount = 40;
+
+            transaction.update({
+                senderWallet,recipient:nextRecipient,amount:nextAmount
+            });
+        })
+        test("outputs the amount to the next recipient",()=>{
+            expect(transaction.outputMap[nextRecipient]).toEqual(nextAmount);
+        })
+        test("subtracts the amount from the sendersWallet",()=>{
+            expect(transaction.outputMap[senderWallet.publicKey]).toEqual(originalSenderOutput - nextAmount);
+        })
+        test("maintains total output balace equal to input amount",()=>{
+            const totalOutput = Object.values(transaction.outputMap).reduce((outputTotal,outputAmount)=>{
+                return outputTotal + outputAmount;
+            })
+            expect(totalOutput).toEqual(transaction.input.amount)
+        })
+        test("re-signs the transaction",()=>{
+            expect(transaction.input.signature).not.toEqual(originalSignature)
+        })
+        describe("add another update for the same recipient",()=>{
+            let addedAmount;
+            beforeEach(()=>{
+                addedAmount = 5;
+                transaction.update({
+                    senderWallet,recipient:nextRecipient,amount:addedAmount
+                });
+            })
+            test("adds to recipient amount",()=>{
+                expect(transaction.outputMap[nextRecipient]).toEqual(nextAmount+addedAmount);
+            })
+            test("subtracts the amount from sender wallet output amount",()=>{
+                expect(transaction.outputMap[senderWallet.publicKey]).toEqual(originalSenderOutput - nextAmount - addedAmount)
+            })
+        })
+
+    })
 })
