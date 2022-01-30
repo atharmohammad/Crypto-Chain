@@ -64,7 +64,6 @@ app.post("/api/transact",(req,res)=>{
             transaction = wallet.createTransaction({amount,recipient});
             transactionPool.setTransaction(transaction);
         }
-        console.log(transaction)
         pubsub.broadcastTransaction(transaction);
         return res.status(200).send(transaction); 
     }catch(e){

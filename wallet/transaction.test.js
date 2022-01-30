@@ -1,4 +1,4 @@
-const { send } = require("express/lib/response");
+const { REWARD_INPUT, MINING_REWARD } = require("../config");
 const { verifySignature } = require("../utils");
 const Wallet = require("./index");
 const Transaction = require("./transaction");
@@ -116,6 +116,19 @@ describe("Transaction ",()=>{
                 expect(transaction.outputMap[senderWallet.publicKey]).toEqual(originalSenderOutput - nextAmount - addedAmount)
             })
         })
-
+    })
+    describe("rewardTransaction()",()=>{
+        let minerWallet , rewardTransaction;
+        beforeEach(()=>{
+            minerWallet = new Wallet();
+            rewardTransaction = Transaction.rewardTransaction(minerWallet);
+        })
+        test("creates transaction with the reward input",()=>{
+            expect(rewardTransaction.input).toEqual(REWARD_INPUT);
+        })
+        test("creates transaction with the mining reward",()=>{
+            expect(rewardTransaction.outputMap[minerWallet.publicKey])
+            .toEqual(MINING_REWARD)
+        })
     })
 })
