@@ -76,7 +76,8 @@ describe("TransactionPool",()=>{
         for(let i = 0; i<6; i++){
           let transaction = new Wallet().createTransaction({
             amount:10,
-            recipient:`recipient-${i}`
+            recipient:`recipient-${i}`,
+            chain:blockchain.chain
           });
           transactionPool.setTransaction(transaction);
           if(i%2 === 1){

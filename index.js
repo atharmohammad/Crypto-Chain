@@ -4,6 +4,8 @@ const PubSub = require("./app/pubsub")
 const Transaction = require("./wallet/transaction")
 const TransactionPool = require("./wallet/transaction-pool");
 const Wallet = require("./wallet/index");
+const TransactionMiner = require("./app/transaction-miner");
+
 const axios = require("axios");
 const req = require("express/lib/request");
 const app = express();
@@ -15,6 +17,7 @@ const transactionPool = new TransactionPool();
 const blockchain = new BlockChain();
 const pubsub = new PubSub({blockchain,transactionPool});
 const wallet = new Wallet();
+const transactionMiner = new TransactionMiner({blockchain,transactionPool,wallet,pubsub});
 
 const syncWithRootState = (async()=>{
     console.log("syncing state")
@@ -61,7 +64,7 @@ app.post("/api/transact",(req,res)=>{
         if(transaction){
             transaction.update({senderWallet:wallet,recipient,amount});
         }else{
-            transaction = wallet.createTransaction({amount,recipient});
+            transaction = wallet.createTransaction({amount,recipient,chain:blockchain.chain});
             transactionPool.setTransaction(transaction);
         }
         pubsub.broadcastTransaction(transaction);
@@ -73,6 +76,19 @@ app.post("/api/transact",(req,res)=>{
 
 app.get("/api/transaction-pool-map",(req,res)=>{
     return res.status(200).send(transactionPool.transactionMap);
+})
+
+app.get("/api/mine-transactions",(req,res)=>{
+    transactionMiner.mineTransaction();
+    return res.redirect("/api/blocks")
+})
+
+app.get("/api/wallet-info",async(req,res)=>{
+    const address = wallet.publicKey;
+    return res.status(200).send({
+        address,
+        balance:Wallet.calculateBalance({chain:blockchain.chain,address})
+    })
 })
 
 let PEER_PORT;

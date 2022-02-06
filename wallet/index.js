@@ -12,12 +12,33 @@ class Wallet{
     sign(data){
         return this.keyPair.sign(cryptoHash(data));
     }
-    createTransaction({amount,recipient}){
+    createTransaction({amount,recipient,chain}){
+        if(chain){
+            this.balance = Wallet.calculateBalance({chain,address:this.publicKey})
+        }
         if(this.balance < amount){
             throw new Error("Don't have enough balance");
         }
         const transaction = new Transaction({senderWallet:this,recipient,amount});
         return transaction;
+    }
+    static calculateBalance({chain,address}){
+        let outputTotal = 0,hasConductedTransaction = false;
+
+        for(let i = chain.length - 1; i>0; i--){
+            const block = chain[i];
+            for(let transaction of block.data){
+                if(transaction.input.address == address){
+                    hasConductedTransaction = true;
+                }
+                const addressOutput = transaction.outputMap[address];
+                if(addressOutput){
+                    outputTotal = outputTotal + transaction.outputMap[address];
+                }
+            }
+            if(hasConductedTransaction)break;
+        }
+        return hasConductedTransaction ? outputTotal : outputTotal + STARTING_BALANCE;
     }
 }
 
