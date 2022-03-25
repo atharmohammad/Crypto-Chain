@@ -2,18 +2,9 @@
     <h1>Crypto Chain</h1>
 </p>
 
-<div align="center">
-<table >
-    <tr>
-     <td>
-          <img src="./media/image1.png" height="300"  />
-     </td>
-   </tr>
-</table>
-</div>
 
-# 🔖 About
-## A Blockchain from scratch
+## 🔖 About
+### A Blockchain from scratch
 - Mining using Proof Of Work
 - Synchronization using redis pub/sub
 - Auto adjusting difficulty for hash
